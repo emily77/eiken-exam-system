@@ -1,0 +1,104 @@
+後端 API 範本（Python + FastAPI，簡單部署在本地或 AWS）。這是基礎，讓 AI 能呼叫。
+SKILL.md 範本（核心萬能公式，直接放 .cursor/skills/ 資料夾）。
+萬能 Prompt（一鍵生成一切，貼到 Claude/Cursor）。
+
+1. 後端 API 範本（Python 程式碼）
+先建一個簡單後端伺服器，管理 JLPT 題庫。用 SQLite 存題目（題目 JSON 格式：級別、類型、問題、選項、答案）。
+貼這個程式碼到 Claude/Cursor，讓它生成完整版，或自己跑：
+Python# jlpt_backend.py (用 pip install fastapi uvicorn sqlite3)
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import sqlite3
+from typing import List
+
+app = FastAPI()
+
+# 資料庫初始化
+conn = sqlite3.connect('jlpt.db')
+c = conn.cursor()
+c.execute('''CREATE TABLE IF NOT EXISTS questions 
+             (id INTEGER PRIMARY KEY, level TEXT, type TEXT, question TEXT, options TEXT, answer TEXT)''')
+conn.commit()
+
+class Question(BaseModel):
+    level: str  # e.g., "N5"
+    type: str   # e.g., "vocabulary", "grammar", "reading", "listening"
+    question: str
+    options: str  # JSON string, e.g., '["A", "B", "C"]'
+    answer: str
+
+@app.post("/questions/")
+def add_question(q: Question):
+    c.execute("INSERT INTO questions (level, type, question, options, answer) VALUES (?, ?, ?, ?, ?)",
+              (q.level, q.type, q.question, q.options, q.answer))
+    conn.commit()
+    return {"status": "added", "id": c.lastrowid}
+
+@app.get("/questions/{level}")
+def get_questions(level: str) -> List[dict]:
+    c.execute("SELECT * FROM questions WHERE level=?", (level,))
+    rows = c.fetchall()
+    return [{"id": r[0], "level": r[1], "type": r[2], "question": r[3], "options": r[4], "answer": r[5]} for r in rows]
+
+@app.post("/validate/")
+def validate_answer(question_id: int, user_answer: str):
+    c.execute("SELECT answer FROM questions WHERE id=?", (question_id,))
+    row = c.fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Question not found")
+    correct = row[0] == user_answer
+    return {"correct": correct, "explanation": "正確答案是 " + row[0] if not correct else "正確！"}
+
+# 跑伺服器：uvicorn jlpt_backend:app --reload
+# Base URL: http://127.0.0.1:8000
+# API Doc: http://127.0.0.1:8000/docs (Swagger)
+怎麼用：
+
+安裝：pip install fastapi uvicorn。
+跑：uvicorn jlpt_backend:app --reload。
+如果沒 API 文件，用影片方法：Chrome DevTools 錄製操作，生成文件。
+
+2. SKILL.md 範本（JLPT 版 CSP Skill）
+這是影片中的核心。建資料夾 .cursor/skills/jlpt_skill/，裡面放這個 SKILL.md。讓 Claude 讀它，就能呼叫 API。
+text# JLPT 題庫管理 Skill
+
+## 描述
+這個 Skill 讓你操作 JLPT 後端 API，自動管理題庫、推薦題目、驗證答案。基於 FastAPI 後端。
+
+## 基礎 URL
+- Base URL: http://127.0.0.1:8000 (本地) 或你的伺服器 URL。
+
+## API 端點
+- POST /questions/ : 新增題目。Body: {"level": "N5", "type": "vocabulary", "question": "問題", "options": '["A: 選項1", "B: 選項2"]', "answer": "A"}
+- GET /questions/{level} : 取得指定級別題目列表。回傳 JSON 陣列。
+- POST /validate/ : 驗證答案。Body: {"question_id": 1, "user_answer": "A"} 回傳 {"correct": true/false, "explanation": "..."}
+
+## 使用場景
+1. 新增題目：搜 JLPT N5 文法題，從 japanesetest4you.com 抓，入庫。
+   - 先用工具搜題。
+   - 呼叫 POST /questions/ 加入。
+2. 推薦題目：分析用戶錯題，推薦中等難度類似題。
+   - 呼叫 GET /questions/N5 查庫。
+   - 搜外部網站補充。
+3. 驗證答案：用戶答題後，呼叫 POST /validate/ 檢查。
+4. 長任務：一鍵 "分析我的 N5 文法錯題，搜 5 題類似中等難度，入庫，然後驗證範例答案"。
+
+## 範例 Prompt
+"使用 JLPT Skill，分析這個用戶答案：問題 '何ですか'，用戶答 'B'。找 3 題 N5 文法類似題從 bunpro.jp 抓，入庫。"
+
+## 注意
+- 題目格式：JSON 確保相容。
+- 外部來源：優先 japanesetest4you.com, bunpro.jp, jlpt.jp (免費樣題)。
+- 如果沒題，自動搜 web 補充。
+對拍 Skill 版（改成 JLPT 答案檢查）：
+建另一個 .cursor/skills/jlpt_validate/，SKILL.md 類似上面，但專注驗證。
+3. 萬能 Prompt（一鍵生成一切）
+直接貼這個到 Claude 或 Cursor，讓它生成完整系統（後端 + Skill + 腳本）。這是最省力的！
+text根據這個影片描述的萬能公式（https://www.youtube.com/watch?v=iOyanng2qrQ），幫我建一個 JLPT (日檢) 題庫刷題系統，一模一樣功能：
+- 後端：Python FastAPI + SQLite，管理題庫 (級別 N1~N5, 類型: vocabulary/grammar/reading/listening)。
+- API：新增題目、查詢題庫、驗證答案 (多選或填空檢查)。
+- Skill：兩個，一個 JLPT Manage (入庫/推薦)，一個 JLPT Validate (答案檢查)。
+- 自動化：AI 能搜 JLPT 題 (從 japanesetest4you.com, bunpro.jp, jlpt.jp)，分析用戶答案，推薦中等難度題，長時間運行。
+- 無需寫碼門檻，用 Skill Creator 生成。
+- 輸出：完整程式碼 + SKILL.md 範本 + 使用範例 Prompt。
+- 如果沒 API 文件，用 Chrome DevTools 反向分析網站如 japanesetest4you.com 的請求。

@@ -1,0 +1,132 @@
+英検マスター - Hetzner 部署クイックスタートガイド
+================================================
+
+📦 ダウンロードしたファイル：eiken-exam-system.tar.gz (104 KB)
+
+## ステップ 1：ファイルを解凍
+
+```bash
+tar -xzf eiken-exam-system.tar.gz
+cd eiken-exam-system
+```
+
+## ステップ 2：ドキュメントを読む
+
+最初に以下のファイルを読んでください：
+
+1. **README.md** - プロジェクト概要
+2. **HETZNER_DEPLOYMENT.md** - 完全な部署ガイド（最重要）
+3. **DEPLOYMENT_CHECKLIST.md** - 部署チェックリスト
+
+## ステップ 3：Hetzner Cloud でサーバーを作成
+
+1. https://www.hetzner.com/cloud にアクセス
+2. アカウントを作成
+3. 新しいプロジェクトを作成
+4. サーバーを作成（推奨：CPX11、Ubuntu 22.04、シンガポール）
+
+## ステップ 4：サーバーにデプロイ
+
+HETZNER_DEPLOYMENT.md の「サーバーセットアップ」セクションに従ってください：
+
+1. SSH で接続
+2. システムを更新
+3. Python と Node.js をインストール
+4. アプリケーションをクローン
+5. 依存関係をインストール
+6. Systemd サービスを設定
+7. Nginx を設定
+8. SSL 証明書を取得
+
+## ステップ 5：ドメインを設定
+
+1. ドメイン名を購入
+2. DNS レコードを設定（A レコード）
+3. DNS の伝播を待機（最大 48 時間）
+
+## ステップ 6：テストして検証
+
+DEPLOYMENT_CHECKLIST.md を使用して、すべてが正常に動作しているか確認してください。
+
+## 📁 プロジェクト構造
+
+eiken-exam-system/
+├── backend.py                 # FastAPI バックエンド
+├── seed.py                    # DB 初期化
+├── frontend/                  # React フロントエンド
+├── requirements.txt           # Python 依存関係
+├── Dockerfile                 # Docker イメージ
+├── docker-compose.yml         # Docker Compose
+├── nginx.conf                 # Nginx 設定
+├── HETZNER_DEPLOYMENT.md      # 部署ガイド（最重要）
+├── DEPLOYMENT_CHECKLIST.md    # チェックリスト
+├── API_DOCS.md                # API ドキュメント
+├── SETUP_GUIDE.md             # セットアップガイド
+└── その他のドキュメント
+
+## 🚀 デプロイメント方法（3 つの選択肢）
+
+### 方法 1：Hetzner Cloud（推奨）
+- コスト：月額 €4.90 から
+- 所要時間：約 30 分
+- ドキュメント：HETZNER_DEPLOYMENT.md
+
+### 方法 2：Docker（最も簡単）
+- コスト：無料（ホスティングは別途）
+- 所要時間：約 10 分
+- コマンド：docker-compose up -d
+
+### 方法 3：ローカル開発
+- コスト：無料
+- 所要時間：約 15 分
+- ドキュメント：SETUP_GUIDE.md
+
+## 💡 重要なポイント
+
+1. **HETZNER_DEPLOYMENT.md を必ず読んでください** - 最も詳細で正確なガイドです
+2. **SSH キーを安全に保管** - サーバーアクセスに必要です
+3. **バックアップを設定** - データ損失を防ぐため重要です
+4. **SSL 証明書を取得** - https でアクセス可能にするため必須です
+5. **ファイアウォールを設定** - セキュリティのため重要です
+
+## 🆘 トラブルシューティング
+
+各ドキュメントのトラブルシューティングセクションを参照してください：
+
+- ローカル開発：SETUP_GUIDE.md
+- Hetzner デプロイ：HETZNER_DEPLOYMENT.md
+- API 問題：API_DOCS.md
+
+## 📞 サポート
+
+問題が発生した場合：
+
+1. ドキュメントのトラブルシューティングセクションを確認
+2. Hetzner サポート：https://support.hetzner.com
+3. GitHub Issues：プロジェクトリポジトリ
+
+## 📋 チェックリスト
+
+デプロイ前に以下を確認してください：
+
+- [ ] すべてのドキュメントを読んだ
+- [ ] Hetzner Cloud アカウントを作成した
+- [ ] SSH キーペアを生成した
+- [ ] ドメイン名を用意した
+- [ ] システム要件を確認した（Python 3.11+、Node.js 18+）
+
+## 🎉 次のステップ
+
+1. eiken-exam-system ディレクトリに移動
+2. README.md を読む
+3. HETZNER_DEPLOYMENT.md に従ってデプロイ
+
+---
+
+質問や問題がある場合は、各ドキュメントのサポートセクションを参照してください。
+
+成功を祈ります！頑張ってください！
+
+---
+
+最終更新：2026年2月11日

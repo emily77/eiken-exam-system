@@ -1,0 +1,44 @@
+{
+  "name": "eiken-exam-platform",
+  "title": "英検マスター - Eiken Exam Platform",
+  "description": "優雅で完美なデザインの英検（Eiken）オンライン試験プラットフォーム。5級から2級、準2級プラスまで、段階的に英語能力を磨くことができます。",
+  "version": "1.0.0",
+  "author": "Manus AI",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/eiken-exam-system.git"
+  },
+  "scripts": {
+    "build": "./build.sh",
+    "start": "python3 -m uvicorn backend:app --host 0.0.0.0 --port $PORT",
+    "dev": "python3 -m uvicorn backend:app --host 0.0.0.0 --port 8000 --reload"
+  },
+  "buildpacks": [
+    "heroku/python",
+    "heroku/nodejs"
+  ],
+  "env": {
+    "DATABASE_URL": {
+      "description": "SQLite database URL",
+      "value": "sqlite:///eiken.db"
+    },
+    "PYTHONUNBUFFERED": {
+      "description": "Python unbuffered output",
+      "value": "1"
+    }
+  },
+  "addons": [],
+  "keywords": [
+    "eiken",
+    "english",
+    "exam",
+    "test",
+    "education",
+    "learning"
+  ],
+  "categories": [
+    "education",
+    "productivity"
+  ]
+}
